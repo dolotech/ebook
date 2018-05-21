@@ -38,13 +38,13 @@ func Test(t *testing.T) {
 
 6．select case必须是chan的io操作，为了避免饥饿问题，当多个通道都同时监听到数据时，select机制会随机性选择一个通道读取，一个通道被多个select语句监听时，同理。
 
-7.for select 组合用break语法是跳不出循环的，如果要跳出循环，要设置goto。
+7. 关闭通道时所有select 监听都会收到通道关闭信号，某种意义上关闭通道是广播事件。
 
 8.goroutine的panic如果没有捕获，整个应用程序会crash ,所以安全起见每个复杂的go线都要recover。
 
 9.在函数退出时，defer的调用顺序是写在后面的先被调用。
 
-10.init函数在main之前调用，被编译器自动调用，每个包理论上允许有多个init函数。
+10.init函数在main之前调用，被编译器自动调用，每个包理论上允许有多个init函数,编码上尽量避免同一个包内出现多个init函数。
 
 11.panic可以中断原有的控制流程，进入一个令人恐慌的流程中,这一过程继续向上，直到发生panic的goroutine中所有调用的函数返回，此时程序退出。恐慌可以直接调用panic产生。也可以由运行时错误产生，例如访问越界的数组.
 recover的用法,recover可以让进入令人恐慌的流程中的goroutine恢复过来。recover仅在defer函数中有效。在正常的执行过程中，调用recover会返回nil，并且没有其它任何效果。
@@ -281,7 +281,7 @@ for i:= uint8(10);i>=0;i--{
 }
 ```
 
-35.goroutine的panic如果没有捕获，整个应用程序会crash ,所以安全起见每个复杂的go线都要recover。
+35.recover只处理本goroutine调用栈，goroutine的panic如果没有捕获，整个应用程序会crash ,所以安全起见每个复杂的go线都要recover。
 
 36.map 并发读写的错误无法用panic捕获。
 
@@ -296,3 +296,7 @@ for i:= uint8(10);i>=0;i--{
 41.关于defer机制，编译器通过 `runtime.deferproc` “注册” 延迟调用，除目标函数地址外，还会复制相关参数（包括 receiver）。在函数返回前，执行 `runtime.deferreturn` 提取相关信息执行延迟调用。这其中的代价自然不是普通函数调用一条 CALL 指令所能比拟的，单个函数里过多的 defer 调用可尝试合并。最起码，在并发竞争激烈时，`mutex.Unlock `不应该使用 defer，而应尽快执行，仅保护最短的代码片段。
 
 42.对map预设容量，map会按需扩张，但须付出数据拷贝和重新哈希成本。如有可能，应尽可能预设足够容量空间，避免此类行为发生。
+
+43.go语言调用c语言：
+- import "C"  这句代码必须紧跟伪注释的C语言代码后面不能有换行
+- go语言的CGO会自动链接编译.c文件，但是必须用go build 编译指令，不能指定main.go文件

@@ -262,8 +262,18 @@ func Benchmark_bb(b *testing.B) {
 - 分配了新的地址之后，再把原来slice中的元素逐个拷贝到新的slice中并返回
 - 触发realloc时，容量小于1024，会扩展到原来的1倍，如果容量小大于1024，会扩展原来的1/4
 
-33.很多打印函数打印结构体时回调用该结构体的String方法，所以String不能再打印本身这个对象。如下图：
-
+33.很多打印函数打印结构体时回调用该结构体的String方法，所以String不能再打印本身这个对象。如下：
+```go
+type S struct {
+}
+func (this S)String()  string{
+	return fmt.Sprint( "S struct: ",this )
+}
+func Test_print(t *testing.T)  {
+	var s S
+	t.Log(s.String())
+}
+```
 34.循环语句里正整型迭代值边界问题，迭代值边界递减到负值，下面的代码会进入死循环：
 ```go
 for i:= uint8(10);i>=0;i--{

@@ -305,3 +305,23 @@ for i:= uint8(10);i>=0;i--{
 - 结构体名字、变量名字采用驼峰命名(根据包外可见性确定首字母是否大写)
 - 常量命名，全大写 +下划线
 
+45. 删除切片的指定下标元素
+- 低效的做法
+``` go
+		for j := 0; j < len(array); j++ {
+			if INDEX == j {
+				array = append(array[:j], array[j+1:]...)
+				break
+			}
+		}
+```
+- 高效的做法
+``` go
+		
+			for j :=INDEX; j < len(array)-1; j++ {
+				array[j] = array[j+1]
+			}
+			array = array[:len(array)-1]
+	
+```
+
